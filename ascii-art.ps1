@@ -75,6 +75,19 @@ Function Print-Hardware-Info {
         $HOST.UI.RawUI.CursorPosition=$Position
         Write-Host "$idesc $speed"
     }
+    $pcsystemtype = (Get-WmiObject -Class Win32_ComputerSystem -Property PCSystemType).PCSystemType
+    if ($pcsystemtype -eq 2) {
+        $batteryma = (Get-WmiObject -Class BatteryStaticData -Namespace ROOT\WMI).ManufactureName
+        $batterydc = (Get-WmiObject -Class BatteryStaticData -Namespace ROOT\WMI).DesignedCapacity
+        $batterycc = (Get-WmiObject -Class BatteryFullChargedCapacity -Namespace ROOT\WMI).FullChargedCapacity
+        $batterycp = (Get-WmiObject win32_battery).EstimatedChargeRemaining
+        $Position.X=$alignment
+        $Position.Y=$row
+        $row = $row+1
+        $HOST.UI.RawUI.CursorPosition=$Position
+        Write-Host "$batteryma [Health $batterycc / $batterydc mWh] $batterycp % Charge"
+
+    }
     $row = $row+1
     if ($row -lt $oldrow) {
         $row = $oldrow
