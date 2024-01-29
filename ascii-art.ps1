@@ -289,7 +289,7 @@ Function Start-Marquee ($text) {
     	} Until ($runs -eq 1) # You can change this to wait for a key if you REAAALY want 🙂
 }
 $artnumber = Get-Random 8
-$artnumber = 7
+#$artnumber = 7
 CLEAR-HOST
 if($artnumber -eq 0)
 {
