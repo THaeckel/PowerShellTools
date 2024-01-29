@@ -6,7 +6,7 @@ $beepScript = "$scriptDir\beep-lotr.ps1"
 
 Function Print-Hardware-Info {
     $alignment = 40
-    $row = 0
+    $row = 1
     $Position=$HOST.UI.RawUI.CursorPosition
     $oldrow = $Position.Y
     $Position.X=$alignment
@@ -26,22 +26,27 @@ Function Print-Hardware-Info {
     echo (get-wmiobject win32_processor).Name
     $memory = (Get-CimInstance Win32_PhysicalMemory | Measure-Object -Property capacity -Sum).sum /1gb
     $memoryspeed = (get-wmiobject Win32_PhysicalMemory)[0].ConfiguredClockSpeed
+    $memorymanu = (get-wmiobject Win32_PhysicalMemory)[0].Manufacturer
     $Position.X=$alignment
     $Position.Y=$row
     $row = $row+1
     $HOST.UI.RawUI.CursorPosition=$Position
-    Write-Host "$memory GB $memoryspeed"
+    Write-Host "$memorymanu $memory GB $memoryspeed Mhz"
     $gpus = Get-WmiObject Win32_VideoController
-    $qwMemorySizes = (Get-ItemProperty -Path "HKLM:\SYSTEM\ControlSet001\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0*" -Name HardwareInformation.qwMemorySize -ErrorAction SilentlyContinue)."HardwareInformation.qwMemorySize"
-    $qwmscnt = 0
+    $registrygpus = Get-ItemProperty -Path "HKLM:\SYSTEM\ControlSet001\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0*"
     foreach ($gpu in $gpus) {
         $caption = $gpu.Caption
         $vram = ($gpu | Measure-Object -Property AdapterRAM -Sum).sum /1Gb
         $vramstring = ""
         $type = $gpu.AdapterDACType
         if ($type -ne "Internal") {
-            $vram = $qwMemorySizes[$qwmscnt] /1Gb
-            $qwmscnt = $qwmscnt+1
+            foreach ($registrygpu in $registrygpus) {
+                $registrycaption = $registrygpu.DriverDesc
+                if ($registrycaption -eq $caption) {
+                    $vram = $registrygpu."HardwareInformation.qwMemorySize" /1Gb
+                    $vramstring = "$vram GB"
+                }
+            }
             $vramstring = "$vram GB"
         }
         $Position.X=$alignment
@@ -49,7 +54,6 @@ Function Print-Hardware-Info {
         $row = $row+1
         $HOST.UI.RawUI.CursorPosition=$Position
         Write-Host "$caption $vramstring"
-       
     }
     $disks = Get-Disk
     $diskssize = ($disks | Measure-Object -Property Size -Sum).sum /1Gb
