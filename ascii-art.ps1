@@ -25,8 +25,15 @@ Function Print-Hardware-Info {
     $HOST.UI.RawUI.CursorPosition=$Position
     echo (get-wmiobject win32_processor).Name
     $memory = (Get-CimInstance Win32_PhysicalMemory | Measure-Object -Property capacity -Sum).sum /1gb
-    $memoryspeed = (get-wmiobject Win32_PhysicalMemory)[0].ConfiguredClockSpeed
-    $memorymanu = (get-wmiobject Win32_PhysicalMemory)[0].Manufacturer
+	$physicalmemory = get-wmiobject Win32_PhysicalMemory
+	if ($physicalmemory.GetType().IsArray) {
+		$memoryspeed = $physicalmemory[0].ConfiguredClockSpeed
+		$memorymanu = $physicalmemory[0].Manufacturer
+	} else {
+		$memoryspeed = $physicalmemory.ConfiguredClockSpeed
+		$memorymanu = $physicalmemory.Manufacturer
+	}
+    
     $Position.X=$alignment
     $Position.Y=$row
     $row = $row+1
@@ -53,7 +60,7 @@ Function Print-Hardware-Info {
         $Position.Y=$row
         $row = $row+1
         $HOST.UI.RawUI.CursorPosition=$Position
-        Write-Host "$caption $vramstring"
+        Write-Host "$caption $vramstring"   
     }
     $disks = Get-Disk
     $diskssize = ($disks | Measure-Object -Property Size -Sum).sum /1Gb
@@ -282,7 +289,7 @@ Function Start-Marquee ($text) {
     	} Until ($runs -eq 1) # You can change this to wait for a key if you REAAALY want 🙂
 }
 $artnumber = Get-Random 8
-# $artnumber = 5
+$artnumber = 7
 CLEAR-HOST
 if($artnumber -eq 0)
 {
