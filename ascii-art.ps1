@@ -1,5 +1,9 @@
 ## This script prints a random ASCII art to the console
 
+# Get the directory of the script
+$scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+$beepScript = "$scriptDir\beep-lotr.ps1"
+
 Function Print-Hardware-Info {
     $alignment = 40
     $row = 0
@@ -261,7 +265,7 @@ Function Start-Marquee ($text) {
     	} Until ($runs -eq 1) # You can change this to wait for a key if you REAAALY want 🙂
 }
 $artnumber = Get-Random 8
-# $artnumber = 7
+$artnumber = 5
 CLEAR-HOST
 if($artnumber -eq 0)
 {
@@ -375,7 +379,7 @@ elseif($artnumber -eq 5)
 	Write-Host '  $$$b.____.dP                                 $ .$. .$.$ss,d$$$b.   T$b.                                       '
 	Write-Host '.d$$$$$$$$$$P                                                                                                   '
 	Write-Host ""
-	& "beep_lotr.ps1"
+	& "$beepScript"
 }
 elseif($artnumber -eq 6)
 {
